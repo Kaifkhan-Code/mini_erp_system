@@ -161,3 +161,25 @@ describe("Test 5: Unauthorized user cannot perform restricted operation", () => 
     expect(res.status).toBe(401);
   });
 });
+
+describe("Bonus: Duplicate inventory transaction is rejected", () => {
+  it("rejects a second /inventory POST that reuses the same idempotency reference", async () => {
+    const payload = {
+      itemName: "Widget", category: "General", location: "LOC-A", batch: "B1",
+      physicalQty: 10, reference: "dup-test-ref-001",
+    };
+
+    const first = await request(app)
+      .post("/inventory")
+      .set("Authorization", `Bearer ${opsToken}`)
+      .send(payload);
+    expect(first.status).toBe(201);
+
+    const second = await request(app)
+      .post("/inventory")
+      .set("Authorization", `Bearer ${opsToken}`)
+      .send(payload);
+    expect(second.status).toBe(409);
+    expect(second.body.error).toMatch(/duplicate/i);
+  });
+});

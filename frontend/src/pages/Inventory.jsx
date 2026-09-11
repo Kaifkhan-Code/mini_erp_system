@@ -9,6 +9,11 @@ export default function Inventory() {
   const [form, setForm] = useState({
     itemName: "", category: "", location: "", batch: "", physicalQty: "",
   });
+  // A fresh idempotency key per pending submission. If the same request is
+  // accidentally fired twice (double-click, network retry), the backend's
+  // (reference, type) unique constraint rejects the duplicate instead of
+  // double-counting stock. A new key is only generated after success.
+  const [submissionRef, setSubmissionRef] = useState(() => crypto.randomUUID());
 
   async function load() {
     try {
@@ -24,11 +29,12 @@ export default function Inventory() {
     e.preventDefault();
     setError("");
     try {
-      await api.addInventory({ ...form, physicalQty: Number(form.physicalQty) });
+      await api.addInventory({ ...form, physicalQty: Number(form.physicalQty), reference: submissionRef });
       setForm({ itemName: "", category: "", location: "", batch: "", physicalQty: "" });
+      setSubmissionRef(crypto.randomUUID()); // new key for the next distinct submission
       load();
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // keep the same submissionRef so a retry of THIS attempt is deduped
     }
   }
 

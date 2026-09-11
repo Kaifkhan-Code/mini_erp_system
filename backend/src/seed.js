@@ -23,13 +23,10 @@ async function main() {
     create: { email: "sales@erp.com", passwordHash: password, role: "SALES" },
   });
 
-  const item = await prisma.item.upsert({
-    where: { id: 1 },
-    update: {},
-    create: { name: "Steel Bolt M8", category: "Hardware" },
-  }).catch(async () => {
-    return prisma.item.create({ data: { name: "Steel Bolt M8", category: "Hardware" } });
-  });
+  let item = await prisma.item.findFirst({ where: { name: "Steel Bolt M8", category: "Hardware" } });
+  if (!item) {
+    item = await prisma.item.create({ data: { name: "Steel Bolt M8", category: "Hardware" } });
+  }
 
   await prisma.inventory.upsert({
     where: { itemId_location_batch: { itemId: item.id, location: "WAREHOUSE-A", batch: "B001" } },
