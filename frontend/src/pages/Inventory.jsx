@@ -1,0 +1,70 @@
+import { useEffect, useState } from "react";
+import { api } from "../api";
+import { useAuth } from "../AuthContext";
+
+export default function Inventory() {
+  const { user } = useAuth();
+  const [rows, setRows] = useState([]);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    itemName: "", category: "", location: "", batch: "", physicalQty: "",
+  });
+
+  async function load() {
+    try {
+      setRows(await api.getInventory());
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    try {
+      await api.addInventory({ ...form, physicalQty: Number(form.physicalQty) });
+      setForm({ itemName: "", category: "", location: "", batch: "", physicalQty: "" });
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  const canEdit = user.role === "ADMIN" || user.role === "OPERATIONS";
+
+  return (
+    <div>
+      <h1>Inventory</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th><th>Category</th><th>Location</th><th>Batch</th>
+            <th>Physical</th><th>Reserved</th><th>Available</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id}>
+              <td>{r.item}</td><td>{r.category}</td><td>{r.location}</td><td>{r.batch}</td>
+              <td>{r.physicalQty}</td><td>{r.reservedQty}</td><td>{r.availableQty}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {canEdit && (
+        <form onSubmit={handleSubmit}>
+          <label>Item name<input required value={form.itemName} onChange={(e) => setForm({ ...form, itemName: e.target.value })} /></label>
+          <label>Category<input required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></label>
+          <label>Location<input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></label>
+          <label>Batch<input required value={form.batch} onChange={(e) => setForm({ ...form, batch: e.target.value })} /></label>
+          <label>Physical qty<input required type="number" min="0" value={form.physicalQty} onChange={(e) => setForm({ ...form, physicalQty: e.target.value })} /></label>
+          <button type="submit">Add / Top up stock</button>
+        </form>
+      )}
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+}
