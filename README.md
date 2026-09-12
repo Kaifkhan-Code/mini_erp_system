@@ -8,7 +8,7 @@ A small, production-oriented full-stack ERP covering:
 | Layer          | Choice                                   | Why |
 |----------------|-------------------------------------------|-----|
 | Backend        | Node.js + Express                        | Fast to build, easy to reason about middleware/auth |
-| ORM / DB       | Prisma + SQLite (file-based)             | Zero external DB setup, but swaps to Postgres/MySQL by changing one line — satisfies "portable, not tied to one hosting provider" |
+| ORM / DB       | Prisma + PostgreSQL (Neon)               | Production-ready relational DB with enum support, transactions, and strong concurrency guarantees |
 | Auth           | JWT + bcrypt                             | Stateless, standard |
 | Frontend       | React (Vite) + React Router              | Minimal, functional, fast dev loop |
 | Testing        | Jest + Supertest                         | HTTP-level tests against the real Express app |
@@ -35,10 +35,11 @@ mini-ops-erp/
 ```bash
 cd backend
 npm install
-cp .env.example .env          # defaults work out of the box (SQLite)
+cp .env.example .env
+# Update backend/.env with your Neon connection string
 npx prisma generate
-npx prisma migrate dev --name init   # creates dev.db + tables
-npm run seed                  # creates 3 demo users + sample stock
+npx prisma migrate dev --name init
+npm run seed
 npm run dev                   # starts API on http://localhost:4000
 ```
 
@@ -61,17 +62,14 @@ move through Inventory → Work Orders → Transfers → Customer Orders.
 
 ## Database Setup
 
-Default: SQLite, file `backend/dev.db` created automatically by
-`prisma migrate dev`. No external service needed.
+This project now defaults to PostgreSQL with Neon.
 
-To switch to Postgres/MySQL (for a "real" deployment):
-1. In `backend/prisma/schema.prisma`, change `provider = "sqlite"` to
-   `provider = "postgresql"` (or `mysql`).
-2. Set `DATABASE_URL` in `.env` to your connection string.
-3. Re-run `npx prisma migrate dev`.
+1. Copy `backend/.env.example` to `backend/.env`.
+2. Replace the sample `DATABASE_URL` with your Neon connection string.
+3. Run `npx prisma migrate dev --name init` to apply the schema and create the initial migration.
+4. Run `npm run seed` to populate demo users and initial inventory.
 
-No route or business-logic code needs to change — this is what "portable
-architecture" means in practice here.
+The Prisma schema keeps the existing enums (`Role`, `WorkOrderStatus`, `TransferStatus`, `OrderStatus`) and uses PostgreSQL-specific features such as transactional conditional updates.
 
 ## Environment Variables
 
@@ -101,9 +99,9 @@ cd frontend && npm run dev
 
 ## How to Test
 
-The 5 mandatory tests live in `backend/tests/app.test.js` and run against a
-separate, isolated SQLite database (`backend/test.db`) so they never touch
-your dev data.
+The 5 mandatory tests live in `backend/tests/app.test.js` and should run against a
+separate PostgreSQL test database configured in `backend/.env.test` so they
+never touch your Neon development data.
 
 ```bash
 cd backend
@@ -172,6 +170,12 @@ every endpoint with example request bodies. Summary:
   restrict a user to their own location if that's the live-verification
   change drawn ("Change 4") — currently unused by default routes, wire it
   into a route's location param if requested live.
+
+## Neon / PostgreSQL Notes
+
+- The Prisma schema now targets PostgreSQL, which is required for enums in Prisma.
+- Use a dedicated Neon database for development and a separate test database for `npm test`.
+- The project’s business rules remain the same; the change is in the underlying database engine and the migration path.
 
 ## Demo Video Checklist (5–7 min)
 

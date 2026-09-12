@@ -41,34 +41,48 @@ export default function Inventory() {
   const canEdit = user.role === "ADMIN" || user.role === "OPERATIONS";
 
   return (
-    <div>
-      <h1>Inventory</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Item</th><th>Category</th><th>Location</th><th>Batch</th>
-            <th>Physical</th><th>Reserved</th><th>Available</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id}>
-              <td>{r.item}</td><td>{r.category}</td><td>{r.location}</td><td>{r.batch}</td>
-              <td>{r.physicalQty}</td><td>{r.reservedQty}</td><td>{r.availableQty}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="page">
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Operations</p>
+          <h1>Inventory</h1>
+        </div>
+        <span className="pill">{user.role}</span>
+      </header>
+
+      <section className="panel">
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th><th>Category</th><th>Location</th><th>Batch</th>
+                <th>Physical</th><th>Reserved</th><th>Available</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.item}</td><td>{r.category}</td><td>{r.location}</td><td>{r.batch}</td>
+                  <td>{r.physicalQty}</td><td>{r.reservedQty}</td><td>{r.availableQty}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {canEdit && (
-        <form onSubmit={handleSubmit}>
-          <label>Item name<input required value={form.itemName} onChange={(e) => setForm({ ...form, itemName: e.target.value })} /></label>
-          <label>Category<input required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></label>
-          <label>Location<input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></label>
-          <label>Batch<input required value={form.batch} onChange={(e) => setForm({ ...form, batch: e.target.value })} /></label>
-          <label>Physical qty<input required type="number" min="0" value={form.physicalQty} onChange={(e) => setForm({ ...form, physicalQty: e.target.value })} /></label>
-          <button type="submit">Add / Top up stock</button>
-        </form>
+        <section className="panel form-panel">
+          <h2>Add inventory</h2>
+          <form onSubmit={handleSubmit} className="stacked-form">
+            <label>Item name<input required value={form.itemName} onChange={(e) => setForm({ ...form, itemName: e.target.value })} /></label>
+            <label>Category<input required value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></label>
+            <label>Location<input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></label>
+            <label>Batch<input required value={form.batch} onChange={(e) => setForm({ ...form, batch: e.target.value })} /></label>
+            <label>Physical qty<input required type="number" min="0" value={form.physicalQty} onChange={(e) => setForm({ ...form, physicalQty: e.target.value })} /></label>
+            <button type="submit" className="primary">Add / Top up stock</button>
+          </form>
+        </section>
       )}
       {error && <div className="error">{error}</div>}
     </div>

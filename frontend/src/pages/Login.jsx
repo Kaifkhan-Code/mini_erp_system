@@ -23,23 +23,33 @@ export default function Login() {
   }
 
   return (
-    <div className="login-box">
-      <h1>Mini Ops ERP — Login</h1>
-      <form onSubmit={handleSubmit} style={{ flexDirection: "column", alignItems: "stretch" }}>
-        <label>
-          Email
-          <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
-        </label>
-        <label>
-          Password
-          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
-        </label>
-        <button type="submit">Log in</button>
-        {error && <div className="error">{error}</div>}
-      </form>
-      <p style={{ fontSize: 12, color: "#666", marginTop: 12 }}>
-        Seeded accounts: admin@erp.com / ops@erp.com / sales@erp.com (password: password123)
-      </p>
+    <div className="login-shell">
+      <div className="login-card">
+        <div className="login-header">
+          <div className="brand-mark large">M</div>
+          <div>
+            <p className="eyebrow">Welcome back</p>
+            <h1>Mini Ops ERP</h1>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <label>
+            Email
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
+          </label>
+          <label>
+            Password
+            <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
+          </label>
+          <button type="submit" className="primary">Log in</button>
+          {error && <div className="error">{error}</div>}
+        </form>
+
+        <p className="helper-text">
+          Seeded accounts: admin@erp.com / ops@erp.com / sales@erp.com (password: password123)
+        </p>
+      </div>
     </div>
   );
 }

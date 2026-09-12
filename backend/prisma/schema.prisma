@@ -1,13 +1,13 @@
 // Prisma schema for Mini Operations ERP
-// Default provider is SQLite so the project runs anywhere with zero setup.
-// Swap provider to "postgresql" / "mysql" + set DATABASE_URL to port elsewhere.
+// PostgreSQL/Neon is the default provider for this project.
+// Set DATABASE_URL in backend/.env to your Neon connection string.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -36,16 +36,16 @@ enum OrderStatus {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
   passwordHash String
   role         Role
   // Assigned location is used for the "restrict user to assigned location"
   // live-verification scenario. Null = not location-restricted (e.g. Admin).
   location     String?
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime @default(now())
 
-  workOrders    WorkOrder[]
+  workOrders     WorkOrder[]
   customerOrders CustomerOrder[]
 }
 
@@ -55,9 +55,9 @@ model Item {
   category  String
   createdAt DateTime @default(now())
 
-  inventory     Inventory[]
-  workOrders    WorkOrder[]
-  transfers     Transfer[]
+  inventory      Inventory[]
+  workOrders     WorkOrder[]
+  transfers      Transfer[]
   customerOrders CustomerOrder[]
 }
 
@@ -83,9 +83,9 @@ model Inventory {
 model InventoryTransaction {
   id          Int      @id @default(autoincrement())
   inventoryId Int
-  type        String   // ADJUSTMENT, RESERVE, RELEASE, TRANSFER_OUT, TRANSFER_IN
+  type        String // ADJUSTMENT, RESERVE, RELEASE, TRANSFER_OUT, TRANSFER_IN
   quantity    Int
-  reference   String?  // e.g. "TRANSFER:3" or "ORDER:5", used for idempotency
+  reference   String? // e.g. "TRANSFER:3" or "ORDER:5", used for idempotency
   createdAt   DateTime @default(now())
 
   @@unique([reference, type])
@@ -104,16 +104,16 @@ model WorkOrder {
 }
 
 model Transfer {
-  id              Int            @id @default(autoincrement())
-  sourceLocation  String
-  destLocation    String
-  itemId          Int
-  item            Item           @relation(fields: [itemId], references: [id])
-  quantity        Int
-  status          TransferStatus @default(REQUESTED)
-  createdAt       DateTime       @default(now())
-  dispatchedAt    DateTime?
-  receivedAt      DateTime?
+  id             Int            @id @default(autoincrement())
+  sourceLocation String
+  destLocation   String
+  itemId         Int
+  item           Item           @relation(fields: [itemId], references: [id])
+  quantity       Int
+  status         TransferStatus @default(REQUESTED)
+  createdAt      DateTime       @default(now())
+  dispatchedAt   DateTime?
+  receivedAt     DateTime?
 }
 
 model CustomerOrder {

@@ -50,46 +50,60 @@ export default function WorkOrders() {
   }
 
   return (
-    <div>
-      <h1>Work Orders</h1>
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Location</th><th>Item</th><th>Required</th><th>Assigned</th><th>Status</th><th></th></tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.id}>
-              <td>{r.id}</td><td>{r.location}</td><td>{r.item?.name}</td>
-              <td>{r.requiredQty}</td><td>{r.assignedUser?.email}</td><td>{r.status}</td>
-              <td>
-                {r.status === "ASSIGNED" && <button onClick={() => advance(r.id, "IN_PROGRESS")}>Start</button>}
-                {r.status === "IN_PROGRESS" && <button onClick={() => advance(r.id, "COMPLETED")}>Complete</button>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="page">
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Production planning</p>
+          <h1>Work Orders</h1>
+        </div>
+        <span className="pill">{user.role}</span>
+      </header>
+
+      <section className="panel">
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Location</th><th>Item</th><th>Required</th><th>Assigned</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.id}</td><td>{r.location}</td><td>{r.item?.name}</td>
+                  <td>{r.requiredQty}</td><td>{r.assignedUser?.email}</td><td><span className="status-badge">{r.status}</span></td>
+                  <td>
+                    {r.status === "ASSIGNED" && <button className="secondary" onClick={() => advance(r.id, "IN_PROGRESS")}>Start</button>}
+                    {r.status === "IN_PROGRESS" && <button className="secondary" onClick={() => advance(r.id, "COMPLETED")}>Complete</button>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {user.role === "ADMIN" && (
-        <form onSubmit={handleSubmit}>
-          <label>Location<input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></label>
-          <label>
-            Item
-            <select required value={form.itemId} onChange={(e) => setForm({ ...form, itemId: e.target.value })}>
-              <option value="">Select</option>
-              {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-            </select>
-          </label>
-          <label>Required qty<input required type="number" min="1" value={form.requiredQty} onChange={(e) => setForm({ ...form, requiredQty: e.target.value })} /></label>
-          <label>Assigned user ID<input required type="number" value={form.assignedUserId} onChange={(e) => setForm({ ...form, assignedUserId: e.target.value })} /></label>
-          <button type="submit">Create Work Order</button>
-        </form>
+        <section className="panel form-panel">
+          <h2>Create work order</h2>
+          <form onSubmit={handleSubmit} className="stacked-form">
+            <label>Location<input required value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></label>
+            <label>
+              Item
+              <select required value={form.itemId} onChange={(e) => setForm({ ...form, itemId: e.target.value })}>
+                <option value="">Select</option>
+                {items.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
+              </select>
+            </label>
+            <label>Required qty<input required type="number" min="1" value={form.requiredQty} onChange={(e) => setForm({ ...form, requiredQty: e.target.value })} /></label>
+            <label>Assigned user ID<input required type="number" value={form.assignedUserId} onChange={(e) => setForm({ ...form, assignedUserId: e.target.value })} /></label>
+            <button type="submit" className="primary">Create Work Order</button>
+          </form>
+        </section>
       )}
       {stockCheck && (
-        <p style={{ marginTop: 8, fontSize: 13 }}>
+        <div className="info-box">
           Stock check — required: {stockCheck.requiredQty}, available at location: {stockCheck.availableAtLocation}, shortage: {stockCheck.shortage}
           {stockCheck.needsTransfer && " → consider an Internal Transfer."}
-        </p>
+        </div>
       )}
       {error && <div className="error">{error}</div>}
     </div>

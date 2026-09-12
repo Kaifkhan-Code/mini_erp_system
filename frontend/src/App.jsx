@@ -30,9 +30,18 @@ function Nav() {
 
 export default function App() {
   return (
-    <>
-      <Nav />
-      <main>
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="brand-wrap">
+          <div className="brand-mark">M</div>
+          <div>
+            <div className="brand-title">Mini Ops ERP</div>
+            <div className="brand-subtitle">Operations control center</div>
+          </div>
+        </div>
+        <Nav />
+      </header>
+      <main className="content">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/inventory" element={<Protected><Inventory /></Protected>} />
@@ -42,6 +51,6 @@ export default function App() {
           <Route path="*" element={<Navigate to="/inventory" replace />} />
         </Routes>
       </main>
-    </>
+    </div>
   );
 }

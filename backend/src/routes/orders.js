@@ -50,8 +50,8 @@ router.post("/", authorize("ADMIN", "SALES"), async (req, res) => {
         const take = Math.min(available, remaining);
 
         // Conditional write: only applies if headroom still holds at the
-        // moment of writing. SQLite serializes writers, and Postgres/MySQL
-        // would enforce the same guarantee via row locks under this WHERE.
+        // moment of writing, so the reservation check and update remain
+        // atomic inside the database transaction.
         const updateResult = await tx.inventory.updateMany({
           where: {
             id: row.id,

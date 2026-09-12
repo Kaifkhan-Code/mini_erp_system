@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 
-// Single shared Prisma instance (recommended pattern to avoid exhausting
-// DB connections, especially important for SQLite's single-writer model).
+// Single shared Prisma instance for the application.
 const prisma = new PrismaClient();
 
 module.exports = prisma;

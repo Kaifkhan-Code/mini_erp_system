@@ -31,6 +31,16 @@ beforeAll(async () => {
   itemId = itemRes.id;
 });
 
+describe("API root", () => {
+  it("returns a JSON health message at GET /", async () => {
+    const res = await request(app).get("/");
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+    expect(res.body.message).toMatch(/Mini Ops ERP API/i);
+  });
+});
+
 afterAll(async () => {
   await prisma.$disconnect();
 });
