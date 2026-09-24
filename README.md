@@ -67,6 +67,46 @@ npm run dev
 
 The UI will run at `http://localhost:5173`.
 
+## Deploying to Vercel
+
+Deploy this repository as two Vercel projects because the frontend and API have different build settings.
+
+### 1) Deploy the backend
+
+In Vercel, import the repository and set **Root Directory** to `backend`. The `backend/api/index.js` adapter exposes the Express API as a Vercel function.
+
+Add these backend environment variables in Vercel for Production and Preview:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Your hosted PostgreSQL / Neon connection string |
+| `JWT_SECRET` | A long, private random string |
+| `JWT_EXPIRES_IN` | For example, `8h` |
+
+Before using the deployed API, apply the Prisma migration against the hosted database:
+
+```bash
+cd backend
+npx prisma migrate deploy
+npm run seed
+```
+
+The deployed API URL will look like `https://your-backend.vercel.app`.
+
+### 2) Deploy the frontend
+
+Create a second Vercel project from the same repository and set **Root Directory** to `frontend`. Vercel will use `npm run build` and `dist` automatically.
+
+Add this frontend environment variable for Production and Preview:
+
+| Variable | Value |
+|---|---|
+| `VITE_API_URL` | The deployed backend URL, without a trailing slash |
+
+Redeploy the frontend after adding the variable. The frontend URL will look like `https://your-frontend.vercel.app`.
+
+Do not upload `backend/.env` or `frontend/.env`; enter those values in Vercel's Environment Variables panel instead.
+
 ## Seeded Demo Accounts
 
 Password for all seeded users: `password123`

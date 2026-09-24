@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node src/index.js",
     "start": "node src/index.js",
+    "postinstall": "prisma generate",
     "seed": "node src/seed.js",
     "pretest": "cross-env DOTENV_CONFIG_PATH=.env.test npx prisma db push --skip-generate",
     "test": "cross-env DOTENV_CONFIG_PATH=.env.test jest --runInBand",
