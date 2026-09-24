@@ -1,6 +1,6 @@
 # Mini Operations ERP
 
-A full-stack ERP demo focused on inventory, work orders, internal transfers, and customer order reservation. The backend uses Express + Prisma + PostgreSQL (Neon), and the frontend uses React + Vite.
+A full-stack ERP demo focused on inventory, work orders, internal transfers, and customer order reservation. The backend uses Express + MongoDB, and the frontend uses React + Vite. The complete stack runs with Docker Compose.
 
 ## Highlights
 
@@ -17,7 +17,7 @@ A full-stack ERP demo focused on inventory, work orders, internal transfers, and
 | Layer | Technology |
 |---|---|
 | Backend | Node.js + Express |
-| ORM / Database | Prisma + PostgreSQL (Neon) |
+| Database | MongoDB with transactional replica-set support |
 | Authentication | JWT + bcryptjs |
 | Frontend | React + Vite + React Router |
 | Testing | Jest + Supertest |
@@ -26,7 +26,7 @@ A full-stack ERP demo focused on inventory, work orders, internal transfers, and
 
 ```text
 mini-ops-erp/
-├── backend/                  Express API, Prisma schema, tests, seed data
+├── backend/                  Express API, MongoDB adapter, tests, seed data
 ├── frontend/                 React app
 ├── ER_DIAGRAM.md             Database / business flow explanation
 ├── postman_collection.json   API examples for Postman
@@ -37,7 +37,19 @@ mini-ops-erp/
 
 ## Quick Start
 
-### 1) Backend setup
+### 1) Docker setup
+
+The recommended setup starts MongoDB, the Express API, and the React/Nginx frontend together:
+
+```bash
+docker compose up --build
+```
+
+Open `http://localhost:8080`. The API is available at `http://localhost:4000`.
+
+The MongoDB container runs as a single-node replica set so reservations and transfer workflows can use transactions safely. Stop the stack with `docker compose down`; add `-v` only when you want to delete the local database volume.
+
+### 2) Backend setup without Docker
 
 ```bash
 cd backend
@@ -45,18 +57,17 @@ npm install
 cp .env.example .env
 ```
 
-Update `backend/.env` with your Neon connection string and secrets.
+Update `backend/.env` with your MongoDB connection string and secrets.
 
 ```bash
-npx prisma generate
-npx prisma migrate dev --name init
+npm install
 npm run seed
 npm run dev
 ```
 
 The API will run at `http://localhost:4000`.
 
-### 2) Frontend setup
+### 3) Frontend setup
 
 ```bash
 cd frontend
@@ -79,15 +90,15 @@ Add these backend environment variables in Vercel for Production and Preview:
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | Your hosted PostgreSQL / Neon connection string |
+| `MONGODB_URI` | Your MongoDB Atlas connection string, including a replica set |
+| `MONGODB_DB` | Production database name |
 | `JWT_SECRET` | A long, private random string |
 | `JWT_EXPIRES_IN` | For example, `8h` |
 
-Before using the deployed API, apply the Prisma migration against the hosted database:
+Before using the deployed API, seed the hosted database:
 
 ```bash
 cd backend
-npx prisma migrate deploy
 npm run seed
 ```
 
@@ -121,7 +132,8 @@ Password for all seeded users: `password123`
 
 | Variable | Purpose |
 |---|---|
-| `DATABASE_URL` | PostgreSQL / Neon connection string |
+| `MONGODB_URI` | MongoDB connection string; Docker uses the `rs0` replica set |
+| `MONGODB_DB` | MongoDB database name |
 | `JWT_SECRET` | Secret used to sign tokens |
 | `JWT_EXPIRES_IN` | Token lifetime, for example `8h` |
 | `PORT` | API port, default `4000` |
@@ -134,9 +146,9 @@ Password for all seeded users: `password123`
 
 ## Database Notes
 
-- The Prisma schema uses PostgreSQL as the database provider.
-- `backend/.env.test` is used by the test runner and should point to a separate test database when possible.
-- The schema preserves the existing enums: `Role`, `WorkOrderStatus`, `TransferStatus`, and `OrderStatus`.
+- MongoDB collections replace the previous Prisma/PostgreSQL schema.
+- MongoDB transactions require a replica set; Docker Compose configures a single-node `rs0` automatically.
+- Numeric IDs are retained at the API boundary so existing frontend routes and seed accounts remain compatible.
 
 ## Testing
 
@@ -169,9 +181,9 @@ Import `postman_collection.json` into Postman or a compatible tool to explore th
 
 ## Development Notes
 
-- Run the backend and frontend in separate terminals.
-- Keep your real Neon credentials in `backend/.env`; do not commit them.
-- The project is already configured for PostgreSQL, so Prisma migrations should be applied using the Prisma PostgreSQL datasource.
+- Run the backend and frontend in separate terminals when developing without Docker.
+- Keep your real MongoDB credentials in `backend/.env`; do not commit them.
+- Use MongoDB Atlas with replica-set support for deployed transactional workflows.
 
 ## Useful References
 

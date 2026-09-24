@@ -1,18 +1,18 @@
 const request = require("supertest");
 const app = require("../src/app");
-const prisma = require("../src/db");
+const db = require("../src/db");
 
 let adminToken, opsToken, salesToken;
 let itemId;
 
 async function resetDb() {
-  await prisma.inventoryTransaction.deleteMany();
-  await prisma.customerOrder.deleteMany();
-  await prisma.transfer.deleteMany();
-  await prisma.workOrder.deleteMany();
-  await prisma.inventory.deleteMany();
-  await prisma.item.deleteMany();
-  await prisma.user.deleteMany();
+  await db.inventoryTransaction.deleteMany();
+  await db.customerOrder.deleteMany();
+  await db.transfer.deleteMany();
+  await db.workOrder.deleteMany();
+  await db.inventory.deleteMany();
+  await db.item.deleteMany();
+  await db.user.deleteMany();
 }
 
 async function registerAndLogin(email, role) {
@@ -27,7 +27,7 @@ beforeAll(async () => {
   opsToken = await registerAndLogin("ops@test.com", "OPERATIONS");
   salesToken = await registerAndLogin("sales@test.com", "SALES");
 
-  const itemRes = await prisma.item.create({ data: { name: "Widget", category: "General" } });
+  const itemRes = await db.item.create({ data: { name: "Widget", category: "General" } });
   itemId = itemRes.id;
 });
 
@@ -42,18 +42,18 @@ describe("API root", () => {
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
+  await db.$disconnect();
 });
 
 beforeEach(async () => {
   // Reset only stock-related tables between tests, keep users/items.
-  await prisma.inventoryTransaction.deleteMany();
-  await prisma.customerOrder.deleteMany();
-  await prisma.transfer.deleteMany();
-  await prisma.workOrder.deleteMany();
-  await prisma.inventory.deleteMany();
+  await db.inventoryTransaction.deleteMany();
+  await db.customerOrder.deleteMany();
+  await db.transfer.deleteMany();
+  await db.workOrder.deleteMany();
+  await db.inventory.deleteMany();
 
-  await prisma.inventory.create({
+  await db.inventory.create({
     data: { itemId, location: "LOC-A", batch: "B1", physicalQty: 100, reservedQty: 0 },
   });
 });
@@ -82,7 +82,7 @@ describe("Test 1: Cannot reserve more than available inventory", () => {
     // Exactly one of the two must succeed (201) and the other must fail (409).
     expect(statuses).toEqual([201, 409]);
 
-    const inv = await prisma.inventory.findFirst({ where: { itemId, location: "LOC-A" } });
+    const inv = await db.inventory.findFirst({ where: { itemId, location: "LOC-A" } });
     expect(inv.reservedQty).toBeLessThanOrEqual(inv.physicalQty);
   });
 });
@@ -116,7 +116,7 @@ describe("Test 3: Destination stock increases only after transfer receipt", () =
       .set("Authorization", `Bearer ${opsToken}`)
       .expect(200);
 
-    let destStock = await prisma.inventory.findFirst({ where: { itemId, location: "LOC-B" } });
+    let destStock = await db.inventory.findFirst({ where: { itemId, location: "LOC-B" } });
     expect(destStock).toBeNull(); // not yet received
 
     await request(app)
@@ -124,7 +124,7 @@ describe("Test 3: Destination stock increases only after transfer receipt", () =
       .set("Authorization", `Bearer ${opsToken}`)
       .expect(200);
 
-    destStock = await prisma.inventory.findFirst({ where: { itemId, location: "LOC-B" } });
+    destStock = await db.inventory.findFirst({ where: { itemId, location: "LOC-B" } });
     expect(destStock.physicalQty).toBe(30);
   });
 });

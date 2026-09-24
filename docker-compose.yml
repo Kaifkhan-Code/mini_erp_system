@@ -1,0 +1,55 @@
+services:
+  mongo:
+    image: mongo:8
+    container_name: mini-ops-mongo
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval \"try { rs.status().ok } catch (e) { 0 }\" | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mongo-init:
+    image: mongo:8
+    depends_on:
+      mongo:
+        condition: service_started
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command: >-
+      "until mongosh --host mongo:27017 --eval 'db.runCommand({ ping: 1 })' >/dev/null 2>&1;
+      do sleep 2; done;
+      mongosh --host mongo:27017 --eval 'try { rs.status() } catch (e) { rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongo:27017\"}]}) }'"
+
+  backend:
+    build: ./backend
+    container_name: mini-ops-backend
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/mini_ops_erp?replicaSet=rs0
+      MONGODB_DB: mini_ops_erp
+      JWT_SECRET: local-docker-secret-change-me
+      JWT_EXPIRES_IN: 8h
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:4000
+    container_name: mini-ops-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo_data:

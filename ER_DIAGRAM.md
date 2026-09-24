@@ -1,7 +1,7 @@
 # Database Schema / ER Diagram
 
-See `backend/prisma/schema.prisma` for the authoritative source. Diagram below
-(renders on GitHub as Mermaid):
+The MongoDB adapter in `backend/src/db.js` implements the collections and
+relationships shown below. The diagram renders on GitHub as Mermaid:
 
 ```mermaid
 erDiagram
@@ -82,7 +82,7 @@ erDiagram
   movement, keyed by an optional `reference` field used as an idempotency
   key to guard against duplicate transactions being replayed.
 - **Reservation, dispatch, and receive are all done inside a single
-  Prisma `$transaction`, using conditional `updateMany` calls** (`UPDATE ...
+    MongoDB transaction, using conditional update operations** (`UPDATE ...
   WHERE <headroom still available>`). This turns "check, then write" into a
   single atomic database operation, which is what actually prevents two
   concurrent requests from over-reserving or over-transferring stock —
