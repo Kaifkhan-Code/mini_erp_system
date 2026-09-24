@@ -22,6 +22,8 @@ backend/.env.*
 # Database files
 *.db
 *.db-journal
+.mongo-data/
+.mongo-test-data/
 
 # Logs and misc
 *.log
