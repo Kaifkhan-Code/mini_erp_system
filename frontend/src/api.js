@@ -1,19 +1,28 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const configuredApiUrl = import.meta.env.VITE_API_URL;
+const API_URL = (configuredApiUrl || "http://localhost:4000").replace(/\/$/, "");
 
 function getToken() {
   return localStorage.getItem("token");
 }
 
 async function request(path, { method = "GET", body } = {}) {
+  if (import.meta.env.PROD && !configuredApiUrl) {
+    throw new Error("API is not configured. Add VITE_API_URL to the Vercel frontend project and redeploy.");
+  }
   const headers = { "Content-Type": "application/json" };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (error) {
+    throw new Error(`Cannot reach the API at ${API_URL}. Check VITE_API_URL and the backend deployment.`);
+  }
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

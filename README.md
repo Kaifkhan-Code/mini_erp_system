@@ -91,7 +91,7 @@ npx prisma migrate deploy
 npm run seed
 ```
 
-The deployed API URL will look like `https://your-backend.vercel.app`.
+The deployed API URL will look like `https://your-backend.vercel.app`. Test it by opening `https://your-backend.vercel.app/health`; it should return `{"status":"ok"}`.
 
 ### 2) Deploy the frontend
 
@@ -101,7 +101,7 @@ Add this frontend environment variable for Production and Preview:
 
 | Variable | Value |
 |---|---|
-| `VITE_API_URL` | The deployed backend URL, without a trailing slash |
+| `VITE_API_URL` | The deployed backend URL, without a trailing slash, for example `https://your-backend.vercel.app` |
 
 Redeploy the frontend after adding the variable. The frontend URL will look like `https://your-frontend.vercel.app`.
 
