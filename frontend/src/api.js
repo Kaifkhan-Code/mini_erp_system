@@ -26,6 +26,9 @@ async function request(path, { method = "GET", body } = {}) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    if (res.status === 405) {
+      throw new Error(`The API rejected ${method} ${path}. VITE_API_URL must be your backend Vercel URL, not the frontend URL.`);
+    }
     throw new Error(data.error || `Request failed with status ${res.status}`);
   }
   return data;
