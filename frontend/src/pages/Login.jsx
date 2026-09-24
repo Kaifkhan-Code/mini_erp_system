@@ -16,7 +16,7 @@ export default function Login() {
     try {
       const { token, user } = await api.login(email, password);
       login(token, user);
-      navigate("/inventory");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     }
@@ -28,8 +28,8 @@ export default function Login() {
         <div className="login-header">
           <div className="brand-mark large">M</div>
           <div>
-            <p className="eyebrow">Welcome back</p>
-            <h1>Mini Ops ERP</h1>
+            <p className="eyebrow">Your operations desk</p>
+            <h1>Welcome back</h1>
           </div>
         </div>
 
@@ -42,12 +42,12 @@ export default function Login() {
             Password
             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
           </label>
-          <button type="submit" className="primary">Log in</button>
+          <button type="submit" className="primary">Open workspace</button>
           {error && <div className="error">{error}</div>}
         </form>
 
         <p className="helper-text">
-          Seeded accounts: admin@erp.com / ops@erp.com / sales@erp.com (password: password123)
+          Demo access: admin@erp.com, ops@erp.com, or sales@erp.com. Password: password123
         </p>
       </div>
     </div>

@@ -4,6 +4,7 @@ A full-stack ERP demo focused on inventory, work orders, internal transfers, and
 
 ## Highlights
 
+- Ops Pulse command center with live KPIs, inventory risk radar, workflow health, and recent activity stream
 - Inventory tracking with physical, reserved, and available stock logic
 - Work order creation with automatic shortage detection
 - Internal transfer workflow with dispatch/receive rules

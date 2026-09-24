@@ -5,6 +5,7 @@ import Inventory from "./pages/Inventory";
 import WorkOrders from "./pages/WorkOrders";
 import Transfers from "./pages/Transfers";
 import Orders from "./pages/Orders";
+import Dashboard from "./pages/Dashboard";
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -16,14 +17,17 @@ function Nav() {
   const { user, logout } = useAuth();
   if (!user) return null;
   return (
-    <nav>
-      <NavLink to="/inventory">Inventory</NavLink>
-      <NavLink to="/workorders">Work Orders</NavLink>
-      <NavLink to="/transfers">Transfers</NavLink>
-      <NavLink to="/orders">Customer Orders</NavLink>
+    <nav className="main-nav">
+      <div className="nav-links">
+        <NavLink to="/dashboard">Overview</NavLink>
+        <NavLink to="/inventory">Inventory</NavLink>
+        <NavLink to="/workorders">Work orders</NavLink>
+        <NavLink to="/transfers">Transfers</NavLink>
+        <NavLink to="/orders">Orders</NavLink>
+      </div>
       <div className="spacer" />
-      <span style={{ color: "#9ca3af", fontSize: 13 }}>{user.email} ({user.role})</span>
-      <button className="secondary" onClick={logout}>Logout</button>
+      <span className="account-chip"><span className="account-avatar">{user.email[0].toUpperCase()}</span><span><strong>{user.email.split("@")[0]}</strong><small>{user.role.toLowerCase()}</small></span></span>
+      <button className="logout-button" onClick={logout}>Sign out</button>
     </nav>
   );
 }
@@ -36,7 +40,7 @@ export default function App() {
           <div className="brand-mark">M</div>
           <div>
             <div className="brand-title">Mini Ops ERP</div>
-            <div className="brand-subtitle">Operations control center</div>
+            <div className="brand-subtitle">Small team operations</div>
           </div>
         </div>
         <Nav />
@@ -44,11 +48,12 @@ export default function App() {
       <main className="content">
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
           <Route path="/inventory" element={<Protected><Inventory /></Protected>} />
           <Route path="/workorders" element={<Protected><WorkOrders /></Protected>} />
           <Route path="/transfers" element={<Protected><Transfers /></Protected>} />
           <Route path="/orders" element={<Protected><Orders /></Protected>} />
-          <Route path="*" element={<Navigate to="/inventory" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </main>
     </div>
