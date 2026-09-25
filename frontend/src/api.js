@@ -26,6 +26,11 @@ async function request(path, { method = "GET", body } = {}) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("auth-expired"));
+    }
     if (res.status === 405) {
       throw new Error(`The API rejected ${method} ${path}. VITE_API_URL must be your backend Vercel URL, not the frontend URL.`);
     }

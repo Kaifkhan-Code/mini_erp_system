@@ -1,12 +1,21 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
+    return raw && localStorage.getItem("token") ? JSON.parse(raw) : null;
   });
+
+  useEffect(() => {
+    function handleAuthExpired() {
+      setUser(null);
+    }
+
+    window.addEventListener("auth-expired", handleAuthExpired);
+    return () => window.removeEventListener("auth-expired", handleAuthExpired);
+  }, []);
 
   function login(token, user) {
     localStorage.setItem("token", token);

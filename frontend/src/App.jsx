@@ -25,8 +25,14 @@ function Nav() {
         <NavLink to="/transfers">Transfers</NavLink>
         <NavLink to="/orders">Orders</NavLink>
       </div>
-      <div className="spacer" />
-      <span className="account-chip"><span className="account-avatar">{user.email[0].toUpperCase()}</span><span><strong>{user.email.split("@")[0]}</strong><small>{user.role.toLowerCase()}</small></span></span>
+      <span className="account-chip">
+        <span className="account-avatar">{user.email[0].toUpperCase()}</span>
+        <span className="account-copy">
+          <strong>{user.email.split("@")[0]}</strong>
+          <small>{user.role.toLowerCase()}</small>
+          <small className="account-id">ID: {user.id}</small>
+        </span>
+      </span>
       <button className="logout-button" onClick={logout}>Sign out</button>
     </nav>
   );
