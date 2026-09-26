@@ -10,14 +10,11 @@ coverage/
 .env
 .env.*
 !.env.example
-!.env.test
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
 backend/.env
 backend/.env.*
-!backend/.env.example
-!backend/.env.test
 
 # Database files
 *.db
@@ -29,3 +26,6 @@ backend/.env.*
 *.log
 .DS_Store
 Thumbs.db
+
+.vercel
+.env*.local

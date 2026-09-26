@@ -7,9 +7,9 @@
     "dev": "node src/index.js",
     "start": "node src/index.js",
     "seed": "node src/seed.js",
-    "pretest": "cross-env DOTENV_CONFIG_PATH=.env.test node src/check-db.js",
-    "test": "cross-env DOTENV_CONFIG_PATH=.env.test jest --runInBand",
-    "mongo:indexes": "node -e \"require('./src/db').connect().then(() => process.exit())\""
+    "pretest": "node src/check-db.js",
+    "test": "jest --runInBand",
+    "mongo:indexes": "node -r dotenv/config -e \"require('./src/db').connect().then(() => process.exit())\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -54,10 +54,9 @@ The MongoDB container runs as a single-node replica set so reservations and tran
 ```bash
 cd backend
 npm install
-cp .env.example .env
 ```
 
-Update `backend/.env` with your MongoDB connection string and secrets.
+Update the existing `backend/.env` with your MongoDB connection string and secrets. The backend uses this single env file for development, seeding, and tests.
 
 ```bash
 npm install
